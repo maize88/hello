@@ -1,4 +1,4 @@
-async function getResult(s) {
+async function getResult(s, token) {
   const ssn = String(s).replaceAll('-', '').replaceAll(' ', '')
 
   const regResult = /(\d{3})(\d{2})(.*)/.exec(ssn)
@@ -9,7 +9,6 @@ async function getResult(s) {
   const area = regResult[1]
   const group = regResult[2]
   const series = regResult[3]
-  const token = 'ZNLNF0ya4We5hIfT54EmQynoGSUnmZ2yPbdyjASR'
 
   return fetch(`https://www.ssn-verify.com/`, {
     headers: {
@@ -98,7 +97,7 @@ function setCache(key, value) {
   localStorage.setItem('task-cache', JSON.stringify(obj))
 }
 
-async function createNewData(data) {
+async function createNewData(data, token) {
   const rows = JSON.parse(JSON.stringify(data))
   let ssnIdx = -1
   for (let i = 0; i < rows.length; i++) {
@@ -112,7 +111,7 @@ async function createNewData(data) {
     const ssn = row[ssnIdx]
     let result = getCache(ssn)
     if (!result) {
-      result = await getResult(ssn)
+      result = await getResult(ssn, token)
     }
     if (result) {
       setCache(ssn, result)
@@ -132,9 +131,13 @@ function createDownload(result) {
 }
 
 async function main() {
+  const token = prompt('token')
+  if (!token) {
+    return
+  }
   const text = await readText()
   const data = parseContent(text)
-  const result = await createNewData(data)
+  const result = await createNewData(data, token)
   createDownload(result)
 }
 
