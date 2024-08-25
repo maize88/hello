@@ -176,5 +176,6 @@
   }
 
   window.main = main
+  main()
 
 })()
